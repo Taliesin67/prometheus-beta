@@ -15,50 +15,28 @@ def reverse_words_in_string(input_string):
     if not input_string:
         return input_string
     
-    # Split the string into words, preserving punctuation
-    word_pattern = re.compile(r'(\w+|[^\w\s])')
-    tokens = word_pattern.findall(input_string)
+    # Split the string, preserving whitespace and punctuation
+    def split_with_spaces(s):
+        # Uses regex to split while keeping delimiters
+        return re.findall(r'\s+|\W+|\w+', s)
     
-    # Process tokens to reverse words while maintaining capitalization
-    processed_tokens = []
-    current_word = []
-    
-    for token in tokens:
-        # If token is punctuation or non-word, add to processed tokens
-        if not token.isalnum():
-            processed_tokens.append(token)
-            continue
+    # Reverse each word while maintaining its original case
+    def reverse_word(word):
+        if not word.isalpha():
+            return word
         
-        # If it's a word, collect characters
-        current_word.append(token)
-    
-    # Reverse each word while preserving original capitalization
-    reversed_words = []
-    for word in current_word:
-        # Determine original capitalization
+        # Determine the original case of the word
         if word.istitle():
-            # If original word was title case, capitalize first letter of reversed word
-            reversed_word = word[::-1].capitalize()
+            return word[::-1].capitalize()
         elif word.isupper():
-            # If original word was all uppercase, keep it uppercase
-            reversed_word = word[::-1].upper()
+            return word[::-1].upper()
         elif word.islower():
-            # If original word was lowercase, keep it lowercase
-            reversed_word = word[::-1].lower()
+            return word[::-1].lower()
         else:
-            # Mixed case, just reverse as-is
-            reversed_word = word[::-1]
-        
-        reversed_words.append(reversed_word)
+            return word[::-1]
     
-    # Combine processed tokens with reversed words
-    result_tokens = []
-    word_index = 0
-    for token in tokens:
-        if token.isalnum():
-            result_tokens.append(reversed_words[word_index])
-            word_index += 1
-        else:
-            result_tokens.append(token)
+    # Split the string and process each token
+    tokens = split_with_spaces(input_string)
+    reversed_tokens = [reverse_word(token) if token.isalpha() else token for token in tokens]
     
-    return ''.join(result_tokens)
+    return ''.join(reversed_tokens)
