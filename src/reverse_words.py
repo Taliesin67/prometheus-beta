@@ -15,52 +15,45 @@ def reverse_words_in_string(input_string):
     if not input_string:
         return input_string
     
-    def apply_original_case(reversed_word, original_word):
+    def custom_case_reverse(word):
         """
-        Apply the original word's case to the reversed word
-        """
-        if original_word.istitle():
-            return reversed_word.capitalize()
-        elif original_word.isupper():
-            return reversed_word.upper()
-        elif original_word.islower():
-            return reversed_word.lower()
-        return reversed_word
-    
-    def extract_alpha_and_numeric(word):
-        """
-        Separate alphabetic and numeric parts of a word
-        """
-        # Split into alpha and numeric segments
-        alpha_part = ''.join(c for c in word if c.isalpha())
-        numeric_part = ''.join(c for c in word if c.isdigit())
-        return alpha_part, numeric_part
-    
-    def reverse_word(word):
-        """
-        Reverse a word while preserving its original characteristics
+        Reverse a word with custom case handling
         """
         # If no alphabetic characters, return as-is
         if not any(c.isalpha() for c in word):
             return word
         
-        # Extract alpha and numeric parts
-        alpha_part, numeric_part = extract_alpha_and_numeric(word)
+        # Separate alphabetic and non-alphabetic parts
+        chars = list(word)
         
-        # Reverse the alpha part
-        reversed_alpha = apply_original_case(alpha_part[::-1], alpha_part)
+        # Find alpha characters
+        alpha_indices = [i for i, c in enumerate(chars) if c.isalpha()]
         
-        # Reconstruct the word, potentially with digits 
-        if numeric_part:
-            return reversed_alpha + numeric_part[::-1]
-        return reversed_alpha
+        # Reverse only alphabetic characters
+        alpha_chars = [chars[i] for i in alpha_indices]
+        alpha_chars_reversed = alpha_chars[::-1]
+        
+        # Restore original case pattern
+        for i, idx in enumerate(alpha_indices):
+            # Determine correct case based on original character
+            if chars[idx].isupper():
+                alpha_chars_reversed[i] = alpha_chars_reversed[i].upper()
+            else:
+                alpha_chars_reversed[i] = alpha_chars_reversed[i].lower()
+        
+        # Rebuild the word
+        result = chars.copy()
+        for i, (idx, char) in enumerate(zip(alpha_indices, alpha_chars_reversed)):
+            result[idx] = char
+        
+        return ''.join(result)
     
-    # Split the string, preserving words and non-word tokens
-    tokens = re.findall(r'\w+|[^\w\s]+|\s+', input_string)
+    # Tokenize the string while preserving structure
+    tokens = re.findall(r'\b\w+\b|[^\w\s]+|\s+', input_string)
     
-    # Process tokens: only reverse tokens that are words
+    # Process words 
     processed_tokens = [
-        reverse_word(token) if re.match(r'^[a-zA-Z0-9]+$', token) else token 
+        custom_case_reverse(token) if re.match(r'\b\w+\b', token) else token 
         for token in tokens
     ]
     
