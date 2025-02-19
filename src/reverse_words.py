@@ -15,46 +15,52 @@ def reverse_words_in_string(input_string):
     if not input_string:
         return input_string
     
+    def apply_original_case(reversed_word, original_word):
+        """
+        Apply the original word's case to the reversed word
+        """
+        if original_word.istitle():
+            return reversed_word.capitalize()
+        elif original_word.isupper():
+            return reversed_word.upper()
+        elif original_word.islower():
+            return reversed_word.lower()
+        return reversed_word
+    
+    def extract_alpha_and_numeric(word):
+        """
+        Separate alphabetic and numeric parts of a word
+        """
+        # Split into alpha and numeric segments
+        alpha_part = ''.join(c for c in word if c.isalpha())
+        numeric_part = ''.join(c for c in word if c.isdigit())
+        return alpha_part, numeric_part
+    
     def reverse_word(word):
         """
-        Reverse only the alphabetic characters while maintaining case
+        Reverse a word while preserving its original characteristics
         """
-        # Separate alphabetic and non-alphabetic parts
-        alpha_chars = [c for c in word if c.isalpha()]
-        
-        if not alpha_chars:
+        # If no alphabetic characters, return as-is
+        if not any(c.isalpha() for c in word):
             return word
         
-        # Reverse alphabetic characters
-        reversed_alpha = alpha_chars[::-1]
+        # Extract alpha and numeric parts
+        alpha_part, numeric_part = extract_alpha_and_numeric(word)
         
-        # Restore case of the original word
-        if word.istitle():
-            reversed_alpha[0] = reversed_alpha[0].upper()
-            reversed_alpha[1:] = [c.lower() for c in reversed_alpha[1:]]
-        elif word.isupper():
-            reversed_alpha = [c.upper() for c in reversed_alpha]
-        elif word.islower():
-            reversed_alpha = [c.lower() for c in reversed_alpha]
+        # Reverse the alpha part
+        reversed_alpha = apply_original_case(alpha_part[::-1], alpha_part)
         
-        # Reconstruct the word, preserving non-alphabetic characters
-        result = []
-        alpha_index = 0
-        for char in word:
-            if char.isalpha():
-                result.append(reversed_alpha[alpha_index])
-                alpha_index += 1
-            else:
-                result.append(char)
-        
-        return ''.join(result)
+        # Reconstruct the word, potentially with digits 
+        if numeric_part:
+            return reversed_alpha + numeric_part[::-1]
+        return reversed_alpha
     
-    # Use regex to split the string while preserving punctuation and spaces
-    tokens = re.findall(r'\b\w+\b|[^\w\s]+|\s+', input_string)
+    # Split the string, preserving words and non-word tokens
+    tokens = re.findall(r'\w+|[^\w\s]+|\s+', input_string)
     
-    # Process each token
+    # Process tokens: only reverse tokens that are words
     processed_tokens = [
-        reverse_word(token) if re.match(r'\b\w+\b', token) else token 
+        reverse_word(token) if re.match(r'^[a-zA-Z0-9]+$', token) else token 
         for token in tokens
     ]
     
