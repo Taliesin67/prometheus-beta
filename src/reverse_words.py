@@ -15,34 +15,42 @@ def reverse_words_in_string(input_string):
     if not input_string:
         return input_string
     
-    def reverse_word(word):
+    def process_word(word):
         """
-        Reverse a word while preserving its original case
+        Process a word: split alpha and non-alpha parts, reverse alpha part
         """
-        if not word.replace('-', '').isalpha():
+        # If no alphabetic characters, return as-is
+        if not re.search(r'[a-zA-Z]', word):
             return word
         
-        # Reverse the character sequence
-        reversed_word = word[::-1]
+        # Split into alpha and non-alpha parts
+        parts = re.findall(r'[a-zA-Z]+|[^a-zA-Z]+', word)
         
-        # Preserve original case characteristics
-        if word.istitle():
-            reversed_word = reversed_word.capitalize()
-        elif word.isupper():
-            reversed_word = reversed_word.upper()
-        elif word.islower():
-            reversed_word = reversed_word.lower()
+        # Reverse only alphabetic parts while preserving case
+        reversed_parts = []
+        for part in parts:
+            if part.isalpha():
+                # Preserve original part's case
+                if part.istitle():
+                    reversed_part = part[::-1].capitalize()
+                elif part.isupper():
+                    reversed_part = part[::-1].upper()
+                elif part.islower():
+                    reversed_part = part[::-1].lower()
+                else:
+                    # Mixed case, just reverse as-is
+                    reversed_part = part[::-1]
+                reversed_parts.append(reversed_part)
+            else:
+                # Non-alphabetic parts stay the same
+                reversed_parts.append(part)
         
-        return reversed_word
+        return ''.join(reversed_parts)
     
-    # Use a regex that preserves the original string structure
-    # Captures words, punctuation, and whitespace
-    tokens = re.findall(r'\b[a-zA-Z]+\b|[^\sa-zA-Z]+|\s+', input_string)
+    # Use regex to split string into words and non-word elements
+    tokens = re.findall(r'\b\w+\b|[^\w\s]+|\s+', input_string)
     
-    # Reverse only the full alphabetic words
-    reversed_tokens = [
-        reverse_word(token) if re.match(r'\b[a-zA-Z]+\b', token) else token 
-        for token in tokens
-    ]
+    # Process each token
+    processed_tokens = [process_word(token) for token in tokens]
     
-    return ''.join(reversed_tokens)
+    return ''.join(processed_tokens)
