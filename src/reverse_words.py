@@ -15,28 +15,28 @@ def reverse_words_in_string(input_string):
     if not input_string:
         return input_string
     
-    # Split the string, preserving whitespace and punctuation
-    def split_with_spaces(s):
-        # Uses regex to split while keeping delimiters
-        return re.findall(r'\s+|\W+|\w+', s)
-    
-    # Reverse each word while maintaining its original case
+    # Helper function to reverse a word while maintaining its case
     def reverse_word(word):
-        if not word.isalpha():
+        if not word.replace('-', '').isalpha():
             return word
         
-        # Determine the original case of the word
+        # Reverse the word
+        reversed_word = word[::-1]
+        
+        # Restore original capitalization
         if word.istitle():
-            return word[::-1].capitalize()
+            reversed_word = reversed_word.capitalize()
         elif word.isupper():
-            return word[::-1].upper()
+            reversed_word = reversed_word.upper()
         elif word.islower():
-            return word[::-1].lower()
-        else:
-            return word[::-1]
+            reversed_word = reversed_word.lower()
+        
+        return reversed_word
     
-    # Split the string and process each token
-    tokens = split_with_spaces(input_string)
-    reversed_tokens = [reverse_word(token) if token.isalpha() else token for token in tokens]
+    # Split the string into words and non-word tokens
+    tokens = re.findall(r'\w+|[^\w\s]|\s+', input_string)
+    
+    # Reverse only the words
+    reversed_tokens = [reverse_word(token) if token.replace('-', '').isalpha() else token for token in tokens]
     
     return ''.join(reversed_tokens)
