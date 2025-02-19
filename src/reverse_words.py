@@ -15,45 +15,47 @@ def reverse_words_in_string(input_string):
     if not input_string:
         return input_string
     
-    def custom_case_reverse(word):
+    def reverse_word(word):
         """
-        Reverse a word with custom case handling
+        Precisely reverse a word while preserving its original characteristics
         """
-        # If no alphabetic characters, return as-is
-        if not any(c.isalpha() for c in word):
+        # First, separate alphabetic characters from non-alphabetic
+        alpha_chars = [c for c in word if c.isalpha()]
+        
+        # If no alphabetic characters, return the word as-is
+        if not alpha_chars:
             return word
         
-        # Separate alphabetic and non-alphabetic parts
-        chars = list(word)
+        # Reverse the alphabetic characters 
+        reversed_alpha = alpha_chars[::-1]
         
-        # Find alpha characters
-        alpha_indices = [i for i, c in enumerate(chars) if c.isalpha()]
-        
-        # Reverse only alphabetic characters
-        alpha_chars = [chars[i] for i in alpha_indices]
-        alpha_chars_reversed = alpha_chars[::-1]
-        
-        # Restore original case pattern
-        for i, idx in enumerate(alpha_indices):
-            # Determine correct case based on original character
-            if chars[idx].isupper():
-                alpha_chars_reversed[i] = alpha_chars_reversed[i].upper()
+        # Reconstruct the word
+        result = []
+        alpha_index = 0
+        for char in word:
+            if char.isalpha():
+                result.append(reversed_alpha[alpha_index])
+                alpha_index += 1
             else:
-                alpha_chars_reversed[i] = alpha_chars_reversed[i].lower()
+                result.append(char)
         
-        # Rebuild the word
-        result = chars.copy()
-        for i, (idx, char) in enumerate(zip(alpha_indices, alpha_chars_reversed)):
-            result[idx] = char
+        # Restore original case characteristics of the alpha parts 
+        # This ensures the reversed chars have the right casing
+        for i, char in enumerate(result):
+            if char.isalpha():
+                if word[i].isupper():
+                    result[i] = char.upper()
+                elif word[i].islower():
+                    result[i] = char.lower()
         
         return ''.join(result)
     
-    # Tokenize the string while preserving structure
-    tokens = re.findall(r'\b\w+\b|[^\w\s]+|\s+', input_string)
+    # Split the string while preserving tokens
+    tokens = re.findall(r'\b[a-zA-Z0-9]+\b|[^\w\s]+|\s+', input_string)
     
-    # Process words 
+    # Process tokens, reversing only word-like tokens 
     processed_tokens = [
-        custom_case_reverse(token) if re.match(r'\b\w+\b', token) else token 
+        reverse_word(token) if re.match(r'\b[a-zA-Z0-9]+\b', token) else token 
         for token in tokens
     ]
     
