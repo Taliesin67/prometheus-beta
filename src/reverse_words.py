@@ -15,45 +15,29 @@ def reverse_words_in_string(input_string):
     if not input_string:
         return input_string
     
-    # Helper function to reverse a word while maintaining its case
-    def reverse_and_match_case(word, original):
-        # If the input is not a pure alphabetic word, return as-is
+    def process_word(word):
+        # If word contains non-alphabetic characters, return as-is
         if not word.replace('-', '').isalpha():
             return word
         
         # Reverse the word
         reversed_word = word[::-1]
         
-        # Restore original capitalization 
-        if original.istitle():
+        # Restore original capitalization
+        if word.istitle():
             reversed_word = reversed_word.capitalize()
-        elif original.isupper():
+        elif word.isupper():
             reversed_word = reversed_word.upper()
-        elif original.islower():
+        elif word.islower():
             reversed_word = reversed_word.lower()
-        
-        # Special handling for alphanumeric words
-        if any(c.isdigit() for c in original):
-            # If original word contained digits, ensure digits are preserved
-            reversed_word = ''.join(
-                d if not c.isalpha() else c 
-                for c, d in zip(original, reversed_word + original)
-            )
         
         return reversed_word
     
-    # Split the string into meaningful tokens
-    def tokenize(s):
-        # This regex captures words, numbers, punctuation, and whitespace
-        return re.findall(r'[a-zA-Z0-9]+|[^\sa-zA-Z0-9]+|\s+', s)
+    # Split the string preserving tokens and whitespace
+    # Captures words, punctuation, and whitespace
+    tokens = re.findall(r'\b[a-zA-Z]+\b|[^\sa-zA-Z]+|\s+', input_string)
     
-    # Tokenize and process
-    tokens = tokenize(input_string)
-    
-    # Reverse only alphabetic/alphanumeric tokens
-    reversed_tokens = [
-        reverse_and_match_case(token, token) if token.replace('-', '').isalpha() else token 
-        for token in tokens
-    ]
+    # Process and reverse words
+    reversed_tokens = [process_word(token) if re.match(r'\b[a-zA-Z]+\b', token) else token for token in tokens]
     
     return ''.join(reversed_tokens)
