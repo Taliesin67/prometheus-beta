@@ -15,42 +15,47 @@ def reverse_words_in_string(input_string):
     if not input_string:
         return input_string
     
-    def process_word(word):
+    def reverse_word(word):
         """
-        Process a word: split alpha and non-alpha parts, reverse alpha part
+        Reverse only the alphabetic characters while maintaining case
         """
-        # If no alphabetic characters, return as-is
-        if not re.search(r'[a-zA-Z]', word):
+        # Separate alphabetic and non-alphabetic parts
+        alpha_chars = [c for c in word if c.isalpha()]
+        
+        if not alpha_chars:
             return word
         
-        # Split into alpha and non-alpha parts
-        parts = re.findall(r'[a-zA-Z]+|[^a-zA-Z]+', word)
+        # Reverse alphabetic characters
+        reversed_alpha = alpha_chars[::-1]
         
-        # Reverse only alphabetic parts while preserving case
-        reversed_parts = []
-        for part in parts:
-            if part.isalpha():
-                # Preserve original part's case
-                if part.istitle():
-                    reversed_part = part[::-1].capitalize()
-                elif part.isupper():
-                    reversed_part = part[::-1].upper()
-                elif part.islower():
-                    reversed_part = part[::-1].lower()
-                else:
-                    # Mixed case, just reverse as-is
-                    reversed_part = part[::-1]
-                reversed_parts.append(reversed_part)
+        # Restore case of the original word
+        if word.istitle():
+            reversed_alpha[0] = reversed_alpha[0].upper()
+            reversed_alpha[1:] = [c.lower() for c in reversed_alpha[1:]]
+        elif word.isupper():
+            reversed_alpha = [c.upper() for c in reversed_alpha]
+        elif word.islower():
+            reversed_alpha = [c.lower() for c in reversed_alpha]
+        
+        # Reconstruct the word, preserving non-alphabetic characters
+        result = []
+        alpha_index = 0
+        for char in word:
+            if char.isalpha():
+                result.append(reversed_alpha[alpha_index])
+                alpha_index += 1
             else:
-                # Non-alphabetic parts stay the same
-                reversed_parts.append(part)
+                result.append(char)
         
-        return ''.join(reversed_parts)
+        return ''.join(result)
     
-    # Use regex to split string into words and non-word elements
+    # Use regex to split the string while preserving punctuation and spaces
     tokens = re.findall(r'\b\w+\b|[^\w\s]+|\s+', input_string)
     
     # Process each token
-    processed_tokens = [process_word(token) for token in tokens]
+    processed_tokens = [
+        reverse_word(token) if re.match(r'\b\w+\b', token) else token 
+        for token in tokens
+    ]
     
     return ''.join(processed_tokens)
