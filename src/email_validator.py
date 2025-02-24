@@ -16,6 +16,7 @@ def validate_email(email: str) -> bool:
     - Local part can contain letters, digits, and some special characters
     - Domain must have at least one dot
     - Total length constraints
+    - No consecutive dots in domain
     """
     # Check if email is a string and not empty
     if not isinstance(email, str) or not email:
@@ -40,6 +41,10 @@ def validate_email(email: str) -> bool:
         
         # Check length constraints
         if len(local_part) > 64 or len(domain_part) > 253:
+            return False
+        
+        # Check for consecutive dots in domain
+        if '..' in domain_part:
             return False
         
         return True
